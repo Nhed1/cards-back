@@ -84,7 +84,10 @@ router.post("/refresh-token", async (req: Request, res: Response) => {
     const newAccessToken = generateAccessToken(userId);
     const newRefreshToken = generateRefreshToken(userId);
 
-    await db.update(users).set({ refreshToken: newRefreshToken }).where(userId);
+    await db
+      .update(users)
+      .set({ refreshToken: newRefreshToken })
+      .where(eq(users.id, userId));
 
     res.json({ accessToken: newAccessToken, refreshToken: newRefreshToken });
   } catch (error) {
