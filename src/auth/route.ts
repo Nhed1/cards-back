@@ -5,7 +5,7 @@ import {
   generateAccessToken,
   generateRefreshToken,
   verifyRefreshToken,
-} from "./handlers";
+} from "./utils";
 import { db } from "../db";
 import { users } from "../db/schema";
 import { eq } from "drizzle-orm";
@@ -77,8 +77,6 @@ router.post("/refresh-token", async (req: Request, res: Response) => {
       .select()
       .from(users)
       .where(eq(users.id, userId));
-
-    console.log(existingUser.refreshToken);
 
     if (!existingUser || existingUser.refreshToken !== refreshToken)
       return res.status(403).json({ message: "Invalid refresh token" });
