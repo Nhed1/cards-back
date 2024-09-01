@@ -26,7 +26,10 @@ export const createDeck = async (req: Request<{}, {}, Deck>, res: Response) => {
 
 export const listDecks = async (req: Request, res: Response) => {
   try {
-    const decksList = db.select().from(decks).where(eq(users.id, req.user.id));
+    const decksList = await db
+      .select()
+      .from(decks)
+      .where(eq(decks.userId, req.user.id));
 
     res.status(200).json({ decks: decksList });
   } catch (e) {
