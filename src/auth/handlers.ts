@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -18,11 +20,11 @@ export async function comparePassword(
   return await bcrypt.compare(plainTextPassword, hash);
 }
 
-export function generateAccessToken(userId: string): string {
+export function generateAccessToken(userId: number): string {
   return jwt.sign({ userId }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 }
 
-export function generateRefreshToken(userId: string): string {
+export function generateRefreshToken(userId: number): string {
   return jwt.sign({ userId }, JWT_REFRESH_SECRET, {
     expiresIn: JWT_REFRESH_EXPIRES_IN,
   });

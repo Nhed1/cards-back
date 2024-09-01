@@ -56,10 +56,10 @@ router.post("/login", async (req: Request, res: Response) => {
     return res.status(400).json({ message: "Invalid email or password" });
   }
 
-  const accessToken = generateAccessToken(email);
-  const refreshToken = generateRefreshToken(email);
+  const accessToken = generateAccessToken(existingUser.id);
+  const refreshToken = generateRefreshToken(existingUser.id);
 
-  existingUser.refreshToken = refreshToken;
+  await db.update(users).set({ refreshToken }).where(eq(users.email, email));
 
   res.json({ accessToken, refreshToken });
 });
@@ -77,6 +77,8 @@ router.post("/refresh-token", async (req: Request, res: Response) => {
       .select()
       .from(users)
       .where(eq(users.id, userId));
+
+    console.log(existingUser.refreshToken);
 
     if (!existingUser || existingUser.refreshToken !== refreshToken)
       return res.status(403).json({ message: "Invalid refresh token" });
