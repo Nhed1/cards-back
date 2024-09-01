@@ -3,6 +3,7 @@ import authRouter from "./auth/route";
 
 const app = express();
 
+app.use(express.json());
 app.use("/api/auth", authRouter);
 
 const PORT = 3000;
