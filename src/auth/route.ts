@@ -6,35 +6,51 @@ import {
   generateRefreshToken,
   verifyRefreshToken,
 } from "./handlers";
+import { db } from "../db";
+import { users } from "../db/schema";
+import { eq } from "drizzle-orm";
 
 const router = express.Router();
-
-// Mock user data (you'd typically use a database)
-const users: { [email: string]: { password: string; refreshToken: string } } =
-  {};
 
 router.post("/register", async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
-  if (users[email]) {
+  const [existingUser] = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, email));
+
+  if (existingUser) {
     return res.status(400).json({ message: "User already exists" });
   }
 
   const hashedPassword = await hashPassword(password);
-  users[email] = { password: hashedPassword, refreshToken: "" };
+  const [newUser] = await db
+    .insert(users)
+    .values({ email, hashedPassword })
+    .returning({ id: users.id });
 
-  res.status(201).json({ message: "User registered successfully" });
+  res
+    .status(201)
+    .json({ message: "User registered successfully", user: newUser });
 });
 
 router.post("/login", async (req: Request, res: Response) => {
   const { email, password } = req.body;
-  const user = users[email];
 
-  if (!user) {
+  const [existingUser] = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, email));
+
+  if (!existingUser) {
     return res.status(400).json({ message: "Invalid email or password" });
   }
 
-  const isPasswordValid = await comparePassword(password, user.password);
+  const isPasswordValid = await comparePassword(
+    password,
+    existingUser.hashedPassword
+  );
 
   if (!isPasswordValid) {
     return res.status(400).json({ message: "Invalid email or password" });
@@ -43,12 +59,12 @@ router.post("/login", async (req: Request, res: Response) => {
   const accessToken = generateAccessToken(email);
   const refreshToken = generateRefreshToken(email);
 
-  user.refreshToken = refreshToken;
+  existingUser.refreshToken = refreshToken;
 
   res.json({ accessToken, refreshToken });
 });
 
-router.post("/refresh-token", (req: Request, res: Response) => {
+router.post("/refresh-token", async (req: Request, res: Response) => {
   const { refreshToken } = req.body;
 
   if (!refreshToken) {
@@ -56,10 +72,19 @@ router.post("/refresh-token", (req: Request, res: Response) => {
   }
   try {
     const { userId } = verifyRefreshToken(refreshToken);
+
+    const [existingUser] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, userId));
+
+    if (!existingUser || existingUser.refreshToken !== refreshToken)
+      return res.status(403).json({ message: "Invalid refresh token" });
+
     const newAccessToken = generateAccessToken(userId);
     const newRefreshToken = generateRefreshToken(userId);
 
-    users[userId].refreshToken = newRefreshToken;
+    await db.update(users).set({ refreshToken: newRefreshToken }).where(userId);
 
     res.json({ accessToken: newAccessToken, refreshToken: newRefreshToken });
   } catch (error) {
