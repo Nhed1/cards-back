@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
-import { db } from "../../db";
-import { decks } from "../../db/schema";
+import { db } from "../db";
+import { decks } from "../db/schema";
 
 export const createDeckDb = async (deckTitle: string, userId: number) => {
   const [deck] = await db

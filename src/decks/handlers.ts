@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { createDeckDb, listDecksDb } from "./data-access/decks.db";
+import { createDeckDb, listDecksDb } from "./data-access";
 
 interface Deck {
   name: string;
