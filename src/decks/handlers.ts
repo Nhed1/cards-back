@@ -1,7 +1,5 @@
 import { Request, Response } from "express";
-import { db } from "../db";
-import { decks, users } from "../db/schema";
-import { eq } from "drizzle-orm";
+import { createDeckDb, listDecksDb } from "./data-access/decks.db";
 
 interface Deck {
   name: string;
@@ -13,10 +11,7 @@ export const createDeck = async (req: Request<{}, {}, Deck>, res: Response) => {
   const userId = req.user.id;
 
   try {
-    const [deck] = await db
-      .insert(decks)
-      .values({ title: name, userId })
-      .returning({ id: decks.id });
+    const deck = await createDeckDb(name, userId);
 
     res.status(201).json({ message: "deck created successfully", deck });
   } catch (e) {
@@ -26,10 +21,7 @@ export const createDeck = async (req: Request<{}, {}, Deck>, res: Response) => {
 
 export const listDecks = async (req: Request, res: Response) => {
   try {
-    const decksList = await db
-      .select()
-      .from(decks)
-      .where(eq(decks.userId, req.user.id));
+    const decksList = await listDecksDb(req.user.id);
 
     res.status(200).json({ decks: decksList });
   } catch (e) {
