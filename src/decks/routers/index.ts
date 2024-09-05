@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createDeck, listDecks } from "./handlers";
+import { createDeck, listDecks } from "../handlers";
 
 const router = Router();
 
