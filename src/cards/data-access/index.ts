@@ -28,3 +28,15 @@ export const getCardByIdDb = async (cardId: number) => {
 
   return card;
 };
+
+export const updateCardDifficultyDb = async (
+  difficulty: number,
+  cardId: number
+) => {
+  const [card] = await db
+    .update(cards)
+    .set({ difficulty })
+    .where(eq(cards.id, cardId));
+
+  return card;
+};
