@@ -1,12 +1,6 @@
 import { Request, Response } from "express";
 import { createCardDb } from "../data-access";
-
-interface Card {
-  frontMessage: string;
-  backMessage: string;
-  difficulty: number;
-  deckId: number;
-}
+import { Card } from "../types";
 
 export const createCard = async (req: Request<{}, {}, Card>, res: Response) => {
   const cardBody = req.body;
