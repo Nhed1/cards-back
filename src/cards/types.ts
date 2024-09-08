@@ -3,4 +3,5 @@ export interface Card {
   backMessage: string;
   difficulty: number;
   deckId: number;
+  updatedAt: Date;
 }

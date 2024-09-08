@@ -15,6 +15,13 @@
       "when": 1725223327156,
       "tag": "0001_rapid_wong",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1725800638358,
+      "tag": "0002_lucky_old_lace",
+      "breakpoints": true
     }
   ]
 }

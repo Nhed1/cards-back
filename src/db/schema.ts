@@ -28,6 +28,12 @@ export const decks = pgTable("decks", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+enum DIFFICULTY {
+  easy = 1,
+  normal = 2,
+  hard = 3,
+}
+
 export const cards = pgTable("cards", {
   id: serial("id").primaryKey(),
   deckId: integer("deck_id")
@@ -35,7 +41,7 @@ export const cards = pgTable("cards", {
     .notNull(),
   frontMessage: text("front_message").notNull(),
   backMessage: text("back_message").notNull(),
-  difficulty: integer("difficulty").notNull(),
+  difficulty: integer("difficulty").notNull().default(DIFFICULTY.normal),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
