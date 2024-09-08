@@ -30,9 +30,15 @@ router.post("/register", async (req: Request, res: Response) => {
     .values({ email, hashedPassword })
     .returning({ id: users.id });
 
-  res
-    .status(201)
-    .json({ message: "User registered successfully", user: newUser });
+  const accessToken = generateAccessToken(newUser.id);
+  const refreshToken = generateRefreshToken(newUser.id);
+
+  res.status(201).json({
+    message: "User registered successfully",
+    user: newUser,
+    accessToken,
+    refreshToken,
+  });
 });
 
 router.post("/login", async (req: Request, res: Response) => {
