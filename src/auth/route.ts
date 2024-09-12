@@ -5,6 +5,7 @@ import {
   generateAccessToken,
   generateRefreshToken,
   verifyRefreshToken,
+  verifyAccessToken,
 } from "./utils";
 import { db } from "../db";
 import { users } from "../db/schema";
@@ -98,6 +99,17 @@ router.post("/refresh-token", async (req: Request, res: Response) => {
     res.json({ accessToken: newAccessToken, refreshToken: newRefreshToken });
   } catch (error) {
     res.status(403).json({ message: "Invalid refresh token" });
+  }
+});
+
+router.post("/validate-token", (req, res) => {
+  const { accessToken } = req.body;
+
+  try {
+    const decoded = verifyAccessToken(accessToken);
+    return res.json({ isValid: true, decoded });
+  } catch (err) {
+    return res.json({ isValid: false, error: err });
   }
 });
 
