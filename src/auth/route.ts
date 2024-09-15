@@ -68,7 +68,7 @@ router.post("/login", async (req: Request, res: Response) => {
 
   await db.update(users).set({ refreshToken }).where(eq(users.email, email));
 
-  res.json({ accessToken, refreshToken });
+  res.json({ accessToken, refreshToken, user: existingUser.email });
 });
 
 router.post("/refresh-token", async (req: Request, res: Response) => {
@@ -110,6 +110,28 @@ router.post("/validate-token", (req, res) => {
     return res.json({ isValid: true, decoded });
   } catch (err) {
     return res.json({ isValid: false, error: err });
+  }
+});
+
+router.post("/fetch-user", async (req: Request, res: Response) => {
+  const { accessToken } = req.body;
+
+  if (!accessToken) {
+    return res.status(401).json({ message: "Access token is required" });
+  }
+
+  try {
+    const { userId } = verifyAccessToken(accessToken);
+
+    const [user] = await db.select().from(users).where(eq(users.id, userId));
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({ user: user.email });
+  } catch (error) {
+    res.status(403).json({ message: "Invalid access token" });
   }
 });
 
